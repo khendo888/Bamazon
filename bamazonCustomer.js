@@ -4,97 +4,98 @@ require("console.table")
 
 // create the connection information for the sql database
 var connection = mysql.createConnection({
-  host: "localhost",
-  port: 3306,
-  user: "root",
-  password: "root",
-  database: "Bamazon"
+    host: "localhost",
+    port: 3306,
+    user: "root",
+    password: "root",
+    database: "Bamazon"
 });
 
 // connect to the mysql server and sql database
+// Creates the connection with the server and loads the product data upon a successful connection
 connection.connect(function(err) {
-  if (err) throw err;
-  	console.log("Connection granted.");
-    selectAll();  
-  })	
-  	function selectAll() {
-    connection.query('SELECT * FROM bamazon.products', function(err, res) {
-    if (err) throw err;
-     console.table(res);
-     askID();
-  });
-};
+    if (err) {
+        console.error("error connecting: " + err.stack);
+    }
+    selectAll();
+});
 
+function selectAll() {
+    var query = 'SELECT * FROM products'
+    connection.query(query, function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        askID();
+    });
+};
 
 //Ask user for the ID of the product they'd like to buy
 function askID() {
-  inquirer
-    .prompt({
-        name: "askID",
-        type: "input",
-        message: "What is the item ID of the product you'd like to purchase?"
-        
-    })
+    inquirer
+        .prompt([{
+            name: "askID",
+            type: "input",
+            message: "What is the item ID of the product you'd like to purchase?"
+        }])
+        .then(function(answer) {
+
+            console.log("You selected item ID " + answer.askID);
+            var query = 'SELECT * FROM products WHERE ?'
+            connection.query(query, { item_id: answer.askID }, function(err, res) {
+                if (err) throw err;
+                console.table(res);
+                askQuant(answer.askID);
+            });
+
+
+        })
+}
+
+
+function askQuant(itemID) {
+    inquirer
+        .prompt([{
+            name: "askQuant",
+            type: "input",
+            message: "How many units of this item would you like to purchase?"
+        }])
+        .then(function(answer) {
+            console.log("You selected " + answer.askQuant + " units for purchase");
+            var query = 'SELECT * FROM products WHERE ?'
+            connection.query(query, {
+                item_id: itemID,
+            }, function(err, res) {
+                if (err) throw err;
+                console.log(res[0].stock_quantity);
+                var stockQuantity = res[0].stock_quantity;
+                console.log(answer.askQuant);
+                var customerQuant = answer.askQuant;
+                if (stockQuantity > customerQuant) {
+                    console.log("The updated quantity for this item is " + parseInt(stockQuantity - customerQuant));
+
+                    updateQuant(customerQuant, itemID, res[0].product_name);
+                } else {
+                    console.log("There are not enough units to satisfy your request. Please try again");
+                    askQuant(itemID);
+
+                }
+            });
+        });
+
+
 
 }
 
-/* function askQuant() {
-  inquirer
-    .prompt({
-        name: "askQuant",
-        type: "input",
-        message: "How many units of this item would you like to purchase?"
-        
-    })
+function updateQuant(customerQuant, ID, name) {
+    connection.query(
+        "UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?", [customerQuant, ID],
+        function(err, res) {
+            // Let the user know the purchase was successful, 
+            console.log("\nSuccessfully purchased " + customerQuant + " " + name + "'s!");
+            var query = 'SELECT * FROM products'
+            connection.query(query, function(err, res) {
+                if (err) throw err;
+                console.table(res);
+            });
+        });
 }
-askQuant();
-
-//The app should then prompt users with two messages.
-
-//The first should ask them the ID of the product they would like to buy.
-//The second message should ask how many units of the product they would like to buy.
-/*Once the customer has placed the order, your application should check if your store has enough of the product to meet the customer's request.
-
-If not, the app should log a phrase like Insufficient quantity!, and then prevent the order from going through.
-However, if your store does have enough of the product, you should fulfill the customer's order.
-
-This means updating the SQL database to reflect the remaining quantity.
-Once the update goes through, show the customer the total cost of their purchase.*/
-
-
-//   // run the start function after the connection is made to prompt the user
-//   start();
-//}
-
-// // function which prompts the user for what action they should take
-// function start() {
-//   inquirer
-//     .prompt({
-//       name: "searchId",
-//       type: "rawlist",
-//       message: "What is the item ID of the product you'd like to buy?",
-//       choices: ["POST", "BID"]
-//     })
-//     .then(function(answer) {
-//       // based on their answer, either call the bid or the post functions
-//       if (answer.postOrBid.toUpperCase() === "POST") {
-//         postAuction();
-//       }
-//       else {
-//         bidAuction();
-//       }
-//     });
-// }
-// Then create a Node application called bamazonCustomer.js. Running this application will first display all of the items available for sale. Include the ids, names, and prices of products for sale.
-
-// The app should then prompt users with two messages.
-
-// The first should ask them the ID of the product they would like to buy.
-// The second message should ask how many units of the product they would like to buy.
-// Once the customer has placed the order, your application should check if your store has enough of the product to meet the customer's request.
-
-// If not, the app should log a phrase like Insufficient quantity!, and then prevent the order from going through.
-// However, if your store does have enough of the product, you should fulfill the customer's order.
-
-// This means updating the SQL database to reflect the remaining quantity.
-// Once the update goes through, show the customer the total cost of their purchase.
