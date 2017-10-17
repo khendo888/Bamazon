@@ -11,11 +11,11 @@ These screenshots display what happens:
 
 
 Screenshot #1
-![](\screenshot1.png)
+![](screenshot1.png)
 
 
 Screenshot #2
-![](\screenshot2.png)
+![](screenshot2.png)
 
 
 Screenshot #3
