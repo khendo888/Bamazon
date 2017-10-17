@@ -51,7 +51,7 @@ function askID() {
         })
 }
 
-
+//ask user the number of units they'd like to purchase
 function askQuant(itemID) {
     inquirer
         .prompt([{
@@ -85,7 +85,7 @@ function askQuant(itemID) {
 
 
 }
-
+ 
 function updateQuant(customerQuant, ID, name) {
     connection.query(
         "UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?", [customerQuant, ID],

@@ -6,17 +6,20 @@ This is an Amazon-like storefront utilizing MySQL and Inquirer npm packages. The
 
 ### Screenshots
 
-These screenshots display what happens.
+These screenshots display what happens:
 
 
 
-![](file:///C:\Users\Karen\Bamazon\screenshot1.png)
+Screenshot #1
+![](\screenshot1.png)
 
 
-![](file:///C:\Users\Karen\Bamazon\screenshot2.png)
+Screenshot #2
+![](\screenshot2.png)
 
 
-![](file:///C:\Users\Karen\Bamazon\screenshot3.png)
+Screenshot #3
+![](screenshot3.png)
 
 
 
